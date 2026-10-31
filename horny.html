@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FOREX EARNERS</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:system-ui}
+body{min-height:100vh;color:white;background: linear-gradient(rgba(15,23,42,0.88), rgba(15,23,42,0.92)), url('candlestick.jpg');background-size:cover;background-position:center;background-attachment:fixed;}
+.hidden{display:none!important}
+#loginPage{height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.login-box{background:rgba(30,41,59,0.95);padding:35px;width:100%;max-width:400px;border-radius:20px;border:1px solid #22c55e}
+.login-box h1{text-align:center;color:#22c55e;font-size:30px}
+.login-box p.sub{text-align:center;color:#fbbf24;margin:8px 0 20px;font-size:13px;font-weight:700}
+.login-box input{width:100%;padding:14px;margin:8px 0;border-radius:12px;border:1px solid #334155;background:#0f172a;color:white;outline:none}
+.login-box button{width:100%;padding:14px;margin-top:12px;background:#22c55e;border:none;border-radius:12px;font-weight:800;cursor:pointer;color:#000;font-size:16px}
+header{display:flex;justify-content:space-between;align-items:center;padding:15px 20px;background:rgba(30,41,59,0.95)}
+header button{background:#ef4444;color:white;border:none;padding:8px 14px;border-radius:8px;cursor:pointer}
+.wrap{max-width:900px;margin:20px auto;padding:0 15px}
+.card{background:rgba(30,41,59,0.9);padding:20px;border-radius:16px;margin-bottom:18px;border:1px solid rgba(34,197,94,0.3)}
+.upload-area{border:2px dashed #22c55e;padding:35px;text-align:center;border-radius:12px;cursor:pointer;background:rgba(15,23,42,0.6);font-weight:600}
+.upload-area:hover{background:rgba(34,197,94,0.15)}
+.social{display:flex;gap:10px;margin-top:15px}
+.social a{flex:1;text-align:center;padding:12px;border-radius:10px;text-decoration:none;font-weight:700;color:white}
+.wa{background:#25D366} .tg{background:#0088cc}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-top:15px}
+.item{background:#0f172a;border-radius:10px;overflow:hidden;position:relative;border:1px solid #334155}
+.item img,.item video{width:100%;height:150px;object-fit:cover;display:block}
+.item p{padding:8px;font-size:12px}
+.del{position:absolute;top:5px;right:5px;background:red;border:none;color:white;border-radius:50%;width:24px;height:24px;cursor:pointer}
+</style>
+</head>
+<body>
+
+<div id="loginPage">
+  <div class="login-box">
+    <h1>FOREX EARNERS</h1>
+    <p class="sub">CANDLESTICKS SIGNALS</p>
+    <input id="email" type="email" placeholder="Email">
+    <input id="pass" type="password" placeholder="Password (forex123)">
+    <button onclick="login()">LOGIN</button>
+  </div>
+</div>
+
+<div id="uploadPage" class="hidden">
+  <header><b style="color:#22c55e">FOREX EARNERS</b><button onclick="logout()">Logout</button></header>
+  <div class="wrap">
+    <div class="card">
+      <h2>Upload Proof / Charts 📈</h2>
+      <div class="upload-area" onclick="document.getElementById('file').click()">📁 Click to Upload Images / Videos</div>
+      <input type="file" id="file" multiple accept="image/*,video/*" hidden onchange="handleFiles(this.files)">
+      <div class="social">
+        <a class="wa" href="https://wa.me/256747213593" target="_blank">WhatsApp: 0747213593</a>
+        <a class="tg" href="https://t.me/Trouble" target="_blank">Telegram: Trouble</a>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Your Uploads (<span id="count">0</span>)</h3>
+      <div id="gallery" class="grid"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const loginPage = document.getElementById('loginPage');
+const uploadPage = document.getElementById('uploadPage');
+
+if(localStorage.getItem("forex_logged")==="yes"){ showUpload(); }
+
+function login(){
+  let e=document.getElementById('email').value;
+  let p=document.getElementById('pass').value;
+  if(!e||!p){ alert("Enter email/password"); return; }
+  localStorage.setItem("forex_logged","yes");
+  showUpload();
+}
+function showUpload(){
+  loginPage.classList.add("hidden");
+  uploadPage.classList.remove("hidden");
+  loadGallery();
+}
+function logout(){
+  localStorage.removeItem("forex_logged");
+  location.reload();
+}
+function handleFiles(files){
+  for(let file of files){
+    let reader = new FileReader();
+    reader.onload = function(e){
+      let saved = JSON.parse(localStorage.getItem("forex_files")||"[]");
+      saved.unshift({name:file.name, type:file.type, data:e.target.result});
+      localStorage.setItem("forex_files", JSON.stringify(saved));
+      loadGallery();
+    };
+    reader.readAsDataURL(file);
+  }
+}
+function loadGallery(){
+  let saved = JSON.parse(localStorage.getItem("forex_files")||"[]");
+  let gallery = document.getElementById("gallery");
+  gallery.innerHTML = "";
+  document.getElementById("count").innerText = saved.length;
+  if(saved.length==0){ gallery.innerHTML='<p style="color:#64748b">No uploads yet. Upload your forex proofs.</p>'; return; }
+  saved.forEach((f,i)=>{
+    let div=document.createElement("div");
+    div.className="item";
+    let media = f.type.startsWith("image") ? `<img src="${f.data}">` : `<video src="${f.data}" controls></video>`;
+    div.innerHTML = `${media}<button class="del" onclick="delFile(${i})">x</button><p>${f.name}</p>`;
+    gallery.appendChild(div);
+  });
+}
+function delFile(i){
+  let saved=JSON.parse(localStorage.getItem("forex_files")||"[]");
+  saved.splice(i,1);
+  localStorage.setItem("forex_files", JSON.stringify(saved));
+  loadGallery();
+}
+</script>
+</body>
+</html>
